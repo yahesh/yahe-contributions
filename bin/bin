@@ -1,0 +1,125 @@
+#!/usr/bin/env php
+<?php
+  # make sure that we use the preferred time zone
+  date_default_timezone_set("Europe/Berlin");
+
+  # define contributions info
+  define("EPOCH",   strtotime("2022-05-22 00:00:00"));
+  define("PATTERN", [0,0,1,0,0,0,1,
+                     0,0,0,1,0,1,0,
+                     0,0,0,0,1,0,0,
+                     0,0,0,1,0,0,0,
+                     0,0,1,0,0,0,0,
+                     0,0,0,0,1,0,0,
+                     0,0,0,1,1,0,0,
+                     0,0,1,0,1,0,0,
+                     0,0,0,1,1,0,0,
+                     0,0,0,0,1,0,0,
+                     0,0,0,0,0,0,0,
+                     0,0,0,0,1,0,0,
+                     0,0,0,1,0,0,0,
+                     0,0,1,0,0,0,0,
+                     0,1,0,1,0,0,0,
+                     1,0,0,0,1,0,0,
+                     0,0,1,0,0,0,0,
+                     0,0,1,1,0,0,0,
+                     0,0,1,0,1,0,0,
+                     0,0,1,1,1,0,0,
+                     0,0,1,0,1,0,0,
+                     0,0,0,0,1,0,0,
+                     0,0,0,0,1,0,0]);
+
+  # define git configuration
+  define("GIT_COMMIT",  "git '--git-dir=/home/contributions/github/yahe-contributions/.git/' '--work-tree=/home/contributions/github/yahe-contributions/' commit -a -m 'create contribution'");
+  define("GIT_PUSH",    "git '--git-dir=/home/contributions/github/yahe-contributions/.git/' '--work-tree=/home/contributions/github/yahe-contributions/' push origin master");
+  define("TARGET_FILE", "/home/contributions/github/yahe-contributions/data/data");
+
+  # define system configuration
+  define("STREAM_BUFFER", 1024);
+
+  # calls $command, prints $stdin to its standard input and reads
+  # $stdout and $stderr from its standard output and its error output
+  function execute_with_stdio($command, $stdin, &$stdout, &$stderr) {
+    $result = false;
+
+    # specify the used descriptors
+    $descriptors = [0 => ["pipe", "r"],  # STDIN
+                    1 => ["pipe", "w"],  # STDOUT
+                    2 => ["pipe", "w"]]; # STDERR
+
+    # open the process handle
+    $handle = proc_open($command, $descriptors, $pipes);
+    if (false !== $handle) {
+      # write stdin content and close the pipe
+      if (null !== $stdin) {
+        # prevent stdio from blocking
+        #stream_set_blocking($pipes[0], false);
+
+        # write stdin in 1kb chunks to prevent blocking
+        $counter = 0;
+        while ($counter < strlen($stdin)) {
+          $write_size = strlen($stdin)-$counter;
+          if ($write_size > STREAM_BUFFER) {
+            $write_size = STREAM_BUFFER;
+          }
+
+          $bytes_written = fwrite($pipes[0], substr($stdin, $counter, $write_size));
+          fflush($pipes[0]);
+
+          $counter += $bytes_written;
+        }
+      }
+      fclose($pipes[0]);
+
+      # read stdout content and close the pipe
+      $stdout = stream_get_contents($pipes[1]);
+      fclose($pipes[1]);
+
+      # read stderr content and close the pipe
+      $stderr = stream_get_contents($pipes[2]);
+      fclose($pipes[2]);
+
+      # close the process and get the return value
+      $result = proc_close($handle);
+    }
+
+    return $result;
+  }
+
+  function main($arguments) {
+    $result = 0;
+
+    # check if we are beyond the EPOCH
+    if (EPOCH <= time()) {
+      # check if we need to create contributions today
+      if (0 < PATTERN[floor((time()-EPOCH) / (24*60*60)) % count(PATTERN)]) {
+        # modify the target file
+        if (false === file_put_contents(TARGET_FILE, time())) {
+          print("ERROR: target file could not be modified\n");
+          $result = 1;
+        } else {
+          # commit the modified target file
+          if (0 !== execute_with_stdio(GIT_COMMIT, null, $stdout, $stderr)) {
+            print("ERROR: modified target file could not be committed\n");
+            $result = 2;
+          } else {
+            # push the modified target file
+            if (0 !== execute_with_stdio(GIT_PUSH, null, $stdout, $stderr)) {
+              print("ERROR: modified target file could not be pushed\n");
+              $result = 3;
+            } else {
+              print("SUCCESS\n");
+            }
+          }
+        }
+      } else {
+        print("IGNORE\n");
+      }
+    } else {
+      print("EPOCH NOT REACHED\n");
+    }
+
+    return $result;
+  }
+
+  exit(main($argv));
