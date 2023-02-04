@@ -31,7 +31,7 @@
 
   # define git configuration
   define("GIT_COMMIT",  "git '--git-dir=/home/contributions/github/yahe-contributions/.git/' '--work-tree=/home/contributions/github/yahe-contributions/' commit -a -m 'create contribution'");
-  define("GIT_PUSH",    "git '--git-dir=/home/contributions/github/yahe-contributions/.git/' '--work-tree=/home/contributions/github/yahe-contributions/' push origin master");
+  define("GIT_PUSH",    "git '--git-dir=/home/contributions/github/yahe-contributions/.git/' '--work-tree=/home/contributions/github/yahe-contributions/' push origin main");
   define("TARGET_FILE", "/home/contributions/github/yahe-contributions/data/data");
 
   # define system configuration
