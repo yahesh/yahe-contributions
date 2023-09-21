@@ -30,9 +30,9 @@
                      0,0,0,0,1,0,0]);
 
   # define git configuration
-  define("GIT_COMMIT",  "git '--git-dir=/data/status/yahe-contributions/.git/' '--work-tree=/data/status/yahe-contributions/' commit -a -m 'create contribution'");
-  define("GIT_PUSH",    "git '--git-dir=/data/status/yahe-contributions/.git/' '--work-tree=/data/status/yahe-contributions/' push origin main");
-  define("TARGET_FILE", "/data/status/yahe-contributions/data/data");
+  define("GIT_COMMIT",  "git '--git-dir=/data/status/yahe-contributions/repo/.git/' '--work-tree=/data/status/yahe-contributions/repo/' commit -a -m 'create contribution'");
+  define("GIT_PUSH",    "git '--git-dir=/data/status/yahe-contributions/repo/.git/' '--work-tree=/data/status/yahe-contributions/repo/' push origin main");
+  define("TARGET_FILE", "/data/status/yahe-contributions/repo/data/data");
 
   # define system configuration
   define("STREAM_BUFFER", 1024);
