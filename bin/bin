@@ -4,7 +4,7 @@
   date_default_timezone_set("Europe/Berlin");
 
   # define contributions info
-  define("EPOCH",   strtotime("2022-05-22 00:00:00"));
+  define("EPOCH",   strtotime("2023-09-24 00:00:00"));
   define("PATTERN", [0,0,1,0,0,0,1,
                      0,0,0,1,0,1,0,
                      0,0,0,0,1,0,0,
@@ -30,9 +30,9 @@
                      0,0,0,0,1,0,0]);
 
   # define git configuration
-  define("GIT_COMMIT",  "git '--git-dir=/home/contributions/github/yahe-contributions/.git/' '--work-tree=/home/contributions/github/yahe-contributions/' commit -a -m 'create contribution'");
-  define("GIT_PUSH",    "git '--git-dir=/home/contributions/github/yahe-contributions/.git/' '--work-tree=/home/contributions/github/yahe-contributions/' push origin main");
-  define("TARGET_FILE", "/home/contributions/github/yahe-contributions/data/data");
+  define("GIT_COMMIT",  "git '--git-dir=/data/status/yahe-contributions/.git/' '--work-tree=/data/status/yahe-contributions/' commit -a -m 'create contribution'");
+  define("GIT_PUSH",    "git '--git-dir=/data/status/yahe-contributions/.git/' '--work-tree=/data/status/yahe-contributions/' push origin main");
+  define("TARGET_FILE", "/data/status/yahe-contributions/data/data");
 
   # define system configuration
   define("STREAM_BUFFER", 1024);
